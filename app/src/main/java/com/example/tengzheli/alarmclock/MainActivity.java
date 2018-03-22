@@ -1,7 +1,9 @@
 package com.example.tengzheli.alarmclock;
 
 import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -23,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     TimePicker alarm_timepicker;
     TextView update_text;
     Context context;
+    PendingIntent pending_intent;
 
 
     @Override
@@ -41,8 +44,8 @@ public class MainActivity extends AppCompatActivity {
 
     //Create an instance of calender
         final Calendar calendar = Calendar.getInstance();
-
-
+    //Create an intent to Alarm Receiver class
+        final Intent my_intent = new Intent(this.context, Alarm_Receiver.class);
 
         //initialise start & stop button
         Button alarm_on = (Button)findViewById(R.id.alarm_on);
@@ -71,6 +74,14 @@ public class MainActivity extends AppCompatActivity {
 
                 set_alarm_text("alarm....on!" + hour_Sting + ":" + minute_String);
 
+                pending_intent = PendingIntent.getBroadcast(MainActivity.this,
+                        0,my_intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                // Set the alarm manager
+                alarm_manager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                        pending_intent);
+
+
             }
         });
 
@@ -79,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 set_alarm_text("alarm....off!");
+
+                alarm_manager.cancel(pending_intent);
             }
         });
 
