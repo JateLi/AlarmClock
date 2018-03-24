@@ -74,6 +74,9 @@ public class MainActivity extends AppCompatActivity {
 
                 set_alarm_text("alarm....on!" + hour_Sting + ":" + minute_String);
 
+                //tell clock "alarm_on" pressed
+                my_intent.putExtra("extra", "on");
+
                 pending_intent = PendingIntent.getBroadcast(MainActivity.this,
                         0,my_intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -92,6 +95,12 @@ public class MainActivity extends AppCompatActivity {
                 set_alarm_text("alarm....off!");
 
                 alarm_manager.cancel(pending_intent);
+
+                //put extra to my_intent, "alarm_off" pressed
+                my_intent.putExtra("extra", "off");
+
+                //stop ringtone
+                sendBroadcast(my_intent);
             }
         });
 
