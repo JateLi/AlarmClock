@@ -25,7 +25,7 @@ import android.widget.Toast;
 public class RingtoneService extends Service{
 
     MediaPlayer media_song;
-    boolean isRunning;
+    boolean isRunning = false;
     int startId;
 
     @Nullable
@@ -76,11 +76,6 @@ public class RingtoneService extends Service{
 
 
             //notification service
-
-//           NotificationManager notify_manager = (NotificationManager)
-//                   getSystemService(Context.NOTIFICATION_SERVICE);
-//
-//
             //Set up and intent to main
             Intent intent_main_activity = new Intent(this.getApplicationContext(), MainActivity.class);
             //
@@ -92,6 +87,7 @@ public class RingtoneService extends Service{
             NotificationManager notificationManager = (NotificationManager)
                     getSystemService(Context.NOTIFICATION_SERVICE);
 
+            //notification channel
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "My Notifications", NotificationManager.IMPORTANCE_MAX);
 
@@ -109,40 +105,16 @@ public class RingtoneService extends Service{
                    NOTIFICATION_CHANNEL_ID);
 
             Notification mNotification = notification_popup
-                    .setContentTitle("hhh")
-                    .setContentText("dddd")
-
-//                .setTicker("Hearty365")
-//                .setContentInfo("Info")
-                    //     .setPriority(Notification.PRIORITY_MAX)
-
+                    .setContentTitle("An alarm is going off")
+                    .setContentText("Click me")
                     .setContentIntent(pending_intent_main_activity)
-
                     .setAutoCancel(true)
-//                .setDefaults(Notification.DEFAULT_ALL)
-//                .setWhen(System.currentTimeMillis())
                     .setSmallIcon(R.mipmap.ic_launcher)
                   //  .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
                     .build();
 
-           notificationManager.notify(0,notification_popup.build());
+           notificationManager.notify(0,mNotification);
 
-
-
-
-
-
-
-          //  Notification notification_popup = new Notification.Builder(this)
-//                    .setContentTitle("An alarm is going off")
-//                    .setContentText("Click me")
-//                   // .setContentIntent(pending_intent_main_activity)
-//                    .setAutoCancel(true)
-//                    .setSmallIcon(R.mipmap.ic_launcher)
-//                    .build();
-//
-//          //  The notification call command
-//            notify_manager.notify(0,notification_popup);
 
         }else if(this.isRunning && startId == 0){
             Log.e("there is music", "stop it");
@@ -155,7 +127,7 @@ public class RingtoneService extends Service{
 
         }else if(!this.isRunning && startId == 0){
             Log.e("no music is playing", "stop it");
-            this.isRunning = true;
+            this.isRunning = false;
             this.startId = 0;
         }else{
             Log.e("else","nothing");
@@ -168,7 +140,7 @@ public class RingtoneService extends Service{
     @Override
     public void onDestroy() {
         // Tell the user we stopped.
-        Toast.makeText(this, "On Destroy called", Toast.LENGTH_SHORT).show();
+      //  Toast.makeText(this, "On Destroy called", Toast.LENGTH_SHORT).show();
         Log.e("on destroy called", "destroy");
         super.onDestroy();
         this.isRunning = false;

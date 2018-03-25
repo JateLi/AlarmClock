@@ -94,13 +94,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 set_alarm_text("alarm....off!");
 
-                alarm_manager.cancel(pending_intent);
+          //      alarm_manager.cancel(pending_intent);
 
                 //put extra to my_intent, "alarm_off" pressed
-                my_intent.putExtra("extra", "off");
+               my_intent.putExtra("extra", "off");
 
                 //stop ringtone
-                sendBroadcast(my_intent);
+               sendBroadcast(my_intent);
             }
         });
 
