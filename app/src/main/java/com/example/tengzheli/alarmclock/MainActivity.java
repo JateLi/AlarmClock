@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -27,15 +29,30 @@ public class MainActivity extends AppCompatActivity {
     Context context;
     PendingIntent pending_intent;
 
+    private static final String TAG = "MainActivity";
+    private SectionsPageAdapter msection;
+private  ViewPager mViewPager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+       Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         //What's this?
         this.context = this;
+
+        msection = new SectionsPageAdapter(getSupportFragmentManager());
+
+        mViewPager = (ViewPager)findViewById(R.id.container);
+        setupViewPager(mViewPager);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(mViewPager);
+
+
+
+
 
         // initialize
     alarm_manager = (AlarmManager) getSystemService(ALARM_SERVICE);
@@ -94,8 +111,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 set_alarm_text("alarm....off!");
 
-          //      alarm_manager.cancel(pending_intent);
-
+                if(pending_intent != null) {
+                    alarm_manager.cancel(pending_intent);
+                }
                 //put extra to my_intent, "alarm_off" pressed
                my_intent.putExtra("extra", "off");
 
@@ -111,6 +129,15 @@ public class MainActivity extends AppCompatActivity {
         update_text.setText(output);
 
     }
+
+    private void setupViewPager(ViewPager viewPager){
+        SectionsPageAdapter adapter = new SectionsPageAdapter(getSupportFragmentManager());
+        adapter.addFragment(new Tag1Fragment(),"TAB1");
+        adapter.addFragment(new Tag2Fragment(),"TAB2");
+      //  adapter.addFragment(new MainActivity(), "Main");
+        viewPager.setAdapter(adapter);
+    }
+
 
 
     @Override
