@@ -23,15 +23,15 @@ public class Tag2Fragment extends Fragment{
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.tag2_fragment, container, false);
-        tag2b = (Button) view.findViewById(R.id.tag2_button);
-       tag2b.setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View view) {
-               Log.e("Tag2", "Show Up");
-           }
-       });
-
-        return  view;
-    }
+       View view = inflater.inflate(R.layout.tag2_fragment, container, false);
+      //  tag2b = (Button) view.findViewById(R.id.tag2_button);
+//       tag2b.setOnClickListener(new View.OnClickListener() {
+//           @Override
+//           public void onClick(View view) {
+//               Log.e("Tag2", "Show Up");
+//           }
+//       });
+//
+    return  view;
+   }
 }
