@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.util.Calendar;
 
@@ -42,7 +43,6 @@ private  ViewPager mViewPager;
         setSupportActionBar(toolbar);
         //What's this?
         this.context = this;
-
         msection = new SectionsPageAdapter(getSupportFragmentManager());
 
         mViewPager = (ViewPager)findViewById(R.id.container);
@@ -50,6 +50,7 @@ private  ViewPager mViewPager;
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
+        setupLaunchButton();
 
 
 
@@ -94,6 +95,7 @@ private  ViewPager mViewPager;
                 //tell clock "alarm_on" pressed
                 my_intent.putExtra("extra", "on");
 
+
                 pending_intent = PendingIntent.getBroadcast(MainActivity.this,
                         0,my_intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -119,6 +121,26 @@ private  ViewPager mViewPager;
 
                 //stop ringtone
                sendBroadcast(my_intent);
+            }
+        });
+
+    }
+
+    private  void setupLaunchButton(){
+        Button launchButton = (Button)findViewById(R.id.launchToSecond);
+        launchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(MainActivity.this, "Clicked to launchSecond",
+                        Toast.LENGTH_SHORT).show();
+
+                //Launch the second activity
+               // Intent intent = new Intent(MainActivity.this, Main2Activity.class);
+               Intent intent = Main2Activity.makeIntent(MainActivity.this);
+
+                startActivity(intent);
+                //end mainActivity
+                finish();
             }
         });
 
