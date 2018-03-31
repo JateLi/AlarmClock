@@ -42,7 +42,7 @@ public class RingtoneService extends Service{
         //fetch the extra string valuse
         String state = intent.getExtras().getString("extra");
         Log.e("ringtone extra is " , state);
-
+        Log.e("song is  " , String.valueOf(this.isRunning));
 
 
         // Convert extra to start ID
@@ -130,7 +130,15 @@ public class RingtoneService extends Service{
             this.isRunning = false;
             this.startId = 0;
         }else{
+            media_song.stop();
+            media_song.reset();
+            media_song = MediaPlayer.create(this, R.raw.three);
+            media_song.start();
+
+            this.isRunning = true;
+            this.startId = 0;
             Log.e("else","nothing");
+
         }
 
 

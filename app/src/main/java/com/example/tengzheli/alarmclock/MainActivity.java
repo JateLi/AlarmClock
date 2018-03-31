@@ -11,6 +11,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,21 +20,32 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
     //to make our alarm manager
-    AlarmManager alarm_manager;
+ //   AlarmManager alarm_manager;
     TimePicker alarm_timepicker;
     TextView update_text;
     Context context;
     PendingIntent pending_intent;
+    ArrayList<Alarm_Infor> alarm_array;
+
+    AlarmManager[] alarmManagers = new AlarmManager[12];
+    PendingIntent[] pendArray = new PendingIntent[12];
+
 
     private static final String TAG = "MainActivity";
     private SectionsPageAdapter msection;
-private  ViewPager mViewPager;
+    private  ViewPager mViewPager;
 
+    protected void onResume(){
+        super.onResume();
+     //   this.onCreate(null);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,23 +64,45 @@ private  ViewPager mViewPager;
 
         setupLaunchButton();
 
-
+       alarm_array = new ArrayList<Alarm_Infor>();
 
 
         // initialize
-    alarm_manager = (AlarmManager) getSystemService(ALARM_SERVICE);
     alarm_timepicker = (TimePicker) findViewById(R.id.timePicker);
     update_text = (TextView) findViewById(R.id.textView);
 
-    //Create an instance of calender
-        final Calendar calendar = Calendar.getInstance();
-    //Create an intent to Alarm Receiver class
-        final Intent my_intent = new Intent(this.context, Alarm_Receiver.class);
 
-        //initialise start & stop button
-        Button alarm_on = (Button)findViewById(R.id.alarm_on);
+    setupAlarmOnButton();
+
+    //Create an intent to Alarm Receiver class
         Button alarm_off = (Button)findViewById(R.id.alarm_off);
 
+
+
+        //Create an onClick listener to stop
+        alarm_off.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                set_alarm_text("alarm....off!");
+                 Intent my_intent = new Intent(MainActivity.this, Alarm_Receiver.class);
+                if(pending_intent != null) {
+                    //alarm_manager.cancel(pending_intent);
+                }
+                //put extra to my_intent, "alarm_off" pressed
+               my_intent.putExtra("extra", "off");
+
+                //stop ringtone
+               sendBroadcast(my_intent);
+            }
+        });
+
+    }
+
+    private void setupAlarmOnButton(){
+        //initialise start & stop button
+        Button alarm_on = (Button)findViewById(R.id.alarm_on);
+        //Create an instance of calender
+        final Calendar calendar = Calendar.getInstance();
         //Create an onClick listener to start
         alarm_on.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,39 +126,61 @@ private  ViewPager mViewPager;
 
                 set_alarm_text("alarm....on!" + hour_Sting + ":" + minute_String);
 
-                //tell clock "alarm_on" pressed
-                my_intent.putExtra("extra", "on");
 
 
-                pending_intent = PendingIntent.getBroadcast(MainActivity.this,
-                        0,my_intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                Log.e("hahah", String.valueOf(alarm_array.size()));
 
-                // Set the alarm manager
-                alarm_manager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                        pending_intent);
+                if(alarm_array.size() == 0){
+                    //tell clock "alarm_on" pressed
+                    Intent my_intent = new Intent(MainActivity.this, Alarm_Receiver.class);
+                    my_intent.putExtra("extra", "on");
 
+                    //request code could be a unique number
+                    pending_intent = PendingIntent.getBroadcast(MainActivity.this,
+                            0, my_intent, 0);
 
-            }
-        });
+                    // Set the alarm manager
+                    alarmManagers[0] = (AlarmManager)context.getSystemService(ALARM_SERVICE);
+                    alarmManagers[0].set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                            pending_intent);
 
-        //Create an onClick listener to stop
-        alarm_off.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                set_alarm_text("alarm....off!");
+                    pendArray[0] = pending_intent;
+                    Alarm_Infor af = new Alarm_Infor(pending_intent, 0, calendar);
+                    alarm_array.add(af);
 
-                if(pending_intent != null) {
-                    alarm_manager.cancel(pending_intent);
+                }else {
+                    //tell clock "alarm_on" pressed
+                    Intent my_intent = new Intent(MainActivity.this, Alarm_Receiver.class);
+                    my_intent.putExtra("extra", "on");
+
+//                    for (int i = 0; i < alarm_array.size(); i++) {
+//                        // Set the alarm manager
+//                        alarmManagers[i] = (AlarmManager)context.getSystemService(ALARM_SERVICE);
+//                        alarmManagers[i].set(AlarmManager.RTC_WAKEUP, alarm_array.get(i).getCalendar().getTimeInMillis(),
+//                                alarm_array.get(i).getPending_intent());
+//
+//                    }
+
+                    pending_intent = PendingIntent.getBroadcast(MainActivity.this,
+                            alarm_array.size(), my_intent, 0);
+
+                    // Set the alarm manager
+                    alarmManagers[alarm_array.size()] = (AlarmManager)context.getSystemService(ALARM_SERVICE);
+                    alarmManagers[alarm_array.size()].set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                            pending_intent);
+
+                    pendArray[alarm_array.size()] = pending_intent;
+                    Alarm_Infor af = new Alarm_Infor(pending_intent, alarm_array.size(),calendar);
+                    alarm_array.add(af);
+
                 }
-                //put extra to my_intent, "alarm_off" pressed
-               my_intent.putExtra("extra", "off");
 
-                //stop ringtone
-               sendBroadcast(my_intent);
             }
         });
 
     }
+
+
 
     private  void setupLaunchButton(){
         Button launchButton = (Button)findViewById(R.id.launchToSecond);
@@ -144,6 +200,10 @@ private  ViewPager mViewPager;
             }
         });
 
+    }
+
+    private void save_alarmInfor(){
+        /////save button
     }
 
     private void set_alarm_text(String output) {
