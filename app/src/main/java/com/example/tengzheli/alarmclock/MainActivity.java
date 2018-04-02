@@ -202,6 +202,38 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void setupAlarmOffButton(){
+
+    }
+
+    //get time interval to trigger alarm manager
+//    private int getTimeInterval(String getInterval) {
+//        int interval = Integer.parseInt(getInterval);//convert string interval into integer
+//
+//        //Return interval on basis of radio button selection
+//        if (secondsRadioButton.isChecked())
+//            return interval;
+//        if (minutesRadioButton.isChecked())
+//            return interval * 60;//convert minute into seconds
+//        if (hoursRadioButton.isChecked()) return interval * 60 * 60;//convert hours into seconds
+//
+//        //else return 0
+//        return 0;
+//    }
+
+    //Trigger alarm manager with entered time interval
+//    public void triggerAlarmManager(int alarmTriggerTime) {
+//        // get a Calendar object with current time
+//        Calendar cal = Calendar.getInstance();
+//        // add alarmTriggerTime seconds to the calendar object
+//        cal.add(Calendar.SECOND, alarmTriggerTime);
+//
+//        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);//get instance of alarm manager
+//        manager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);//set alarm manager with entered timer by converting into milliseconds
+//
+//        Toast.makeText(this, "Alarm Set for " + alarmTriggerTime + " seconds.", Toast.LENGTH_SHORT).show();
+//    }
+
     private void save_alarmInfor(){
         /////save button
     }
