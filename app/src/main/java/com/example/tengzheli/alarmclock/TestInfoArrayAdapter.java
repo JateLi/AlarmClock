@@ -1,7 +1,6 @@
 package com.example.tengzheli.alarmclock;
 
 import android.content.Context;
-import android.nfc.Tag;
 import android.support.annotation.AnimatorRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,7 +14,6 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by tengzheli on 2/04/18.

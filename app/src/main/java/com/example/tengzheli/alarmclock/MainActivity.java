@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -20,6 +21,11 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.UUID;
@@ -27,20 +33,25 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
 
     //to make our alarm manager
- //   AlarmManager alarm_manager;
     TimePicker alarm_timepicker;
     TextView update_text;
     Context context;
     PendingIntent pending_intent;
-    ArrayList<Alarm_Infor> alarm_array;
+    private ArrayList<Alarm_Infor> alarm_array = new ArrayList<Alarm_Infor>();
 
-    AlarmManager[] alarmManagers = new AlarmManager[12];
-    PendingIntent[] pendArray = new PendingIntent[12];
-
+    //AlarmManager[] alarmManagers = new AlarmManager[12];
+    AlarmManager a ;
 
     private static final String TAG = "MainActivity";
     private SectionsPageAdapter msection;
     private  ViewPager mViewPager;
+
+    private  int pendingRequestCode = 0;
+
+    //local storage tag
+    public static  final  String Shared_Prefs = "sharedPrefs";
+    public static  final  String RequestCode =  "pendingRequestCode";
+
 
     protected void onResume(){
         super.onResume();
@@ -64,12 +75,11 @@ public class MainActivity extends AppCompatActivity {
 
         setupLaunchButton();
 
-       alarm_array = new ArrayList<Alarm_Infor>();
-
+      //  alarm_array = new ArrayList<Alarm_Infor>();
 
         // initialize
-    alarm_timepicker = (TimePicker) findViewById(R.id.timePicker);
-    update_text = (TextView) findViewById(R.id.textView);
+        alarm_timepicker = (TimePicker) findViewById(R.id.timePicker);
+        update_text = (TextView) findViewById(R.id.textView);
 
 
     setupAlarmOnButton();
@@ -83,16 +93,17 @@ public class MainActivity extends AppCompatActivity {
         alarm_off.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                set_alarm_text("alarm....off!");
-                 Intent my_intent = new Intent(MainActivity.this, Alarm_Receiver.class);
-                if(pending_intent != null) {
-                    //alarm_manager.cancel(pending_intent);
-                }
-                //put extra to my_intent, "alarm_off" pressed
-               my_intent.putExtra("extra", "off");
-
-                //stop ringtone
-               sendBroadcast(my_intent);
+//                set_alarm_text("alarm....off!");
+//                 Intent my_intent = new Intent(MainActivity.this, Alarm_Receiver.class);
+//                if(pending_intent != null) {
+//                    //alarm_manager.cancel(pending_intent);
+//                }
+//                //put extra to my_intent, "alarm_off" pressed
+//               my_intent.putExtra("extra", "off");
+//
+//                //stop ringtone
+//               sendBroadcast(my_intent);
+                loadData();
             }
         });
 
@@ -126,57 +137,70 @@ public class MainActivity extends AppCompatActivity {
 
                 set_alarm_text("alarm....on!" + hour_Sting + ":" + minute_String);
 
+                Log.e("Alarm_Array Size is ", String.valueOf(alarm_array.size()));
 
-
-                Log.e("hahah", String.valueOf(alarm_array.size()));
-
-                if(alarm_array.size() == 0){
+                // 20 Alarm slots limitation
+                if(alarm_array.size() < 21) {
                     //tell clock "alarm_on" pressed
                     Intent my_intent = new Intent(MainActivity.this, Alarm_Receiver.class);
                     my_intent.putExtra("extra", "on");
 
                     //request code could be a unique number
                     pending_intent = PendingIntent.getBroadcast(MainActivity.this,
-                            0, my_intent, 0);
+                            pendingRequestCode, my_intent, 0);
+
 
                     // Set the alarm manager
-                    alarmManagers[0] = (AlarmManager)context.getSystemService(ALARM_SERVICE);
-                    alarmManagers[0].set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                    a = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+                    a.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
                             pending_intent);
 
-                    pendArray[0] = pending_intent;
-                    Alarm_Infor af = new Alarm_Infor(pending_intent, 0, calendar);
+                    Alarm_Infor af = new Alarm_Infor(pending_intent, pendingRequestCode, calendar);
                     alarm_array.add(af);
+                    saveData(af);
+                    pendingRequestCode += 1;
 
-                }else {
-                    //tell clock "alarm_on" pressed
-                    Intent my_intent = new Intent(MainActivity.this, Alarm_Receiver.class);
-                    my_intent.putExtra("extra", "on");
-
-//                    for (int i = 0; i < alarm_array.size(); i++) {
-//                        // Set the alarm manager
-//                        alarmManagers[i] = (AlarmManager)context.getSystemService(ALARM_SERVICE);
-//                        alarmManagers[i].set(AlarmManager.RTC_WAKEUP, alarm_array.get(i).getCalendar().getTimeInMillis(),
-//                                alarm_array.get(i).getPending_intent());
-//
-//                    }
-
-                    pending_intent = PendingIntent.getBroadcast(MainActivity.this,
-                            alarm_array.size(), my_intent, 0);
-
-                    // Set the alarm manager
-                    alarmManagers[alarm_array.size()] = (AlarmManager)context.getSystemService(ALARM_SERVICE);
-                    alarmManagers[alarm_array.size()].set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                            pending_intent);
-
-                    pendArray[alarm_array.size()] = pending_intent;
-                    Alarm_Infor af = new Alarm_Infor(pending_intent, alarm_array.size(),calendar);
-                    alarm_array.add(af);
 
                 }
 
             }
         });
+
+    }
+
+
+    public void saveData(Alarm_Infor a){
+        SharedPreferences sharedPreferences =  getSharedPreferences(Shared_Prefs,
+                MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.putInt(RequestCode, pendingRequestCode);
+        //mark the fields you do want to be included in json, Circular references do not expose.
+        Gson gson = new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation().create();
+
+        String json = gson.toJson(alarm_array);
+       editor.putString("task_list", json);
+        editor.apply();
+
+
+    }
+
+    public void loadData(){
+        SharedPreferences sharedPreferences =  getSharedPreferences(Shared_Prefs,
+                MODE_PRIVATE);
+        pendingRequestCode = sharedPreferences.getInt(RequestCode, 0);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString("task_list", null);
+        Type type = new TypeToken<ArrayList<Alarm_Infor>>(){}.getType();
+        alarm_array = gson.fromJson(json, type);
+
+        if(alarm_array == null){
+            alarm_array = new ArrayList<>();
+        }
+
+        Log.e("Load array size", String.valueOf(alarm_array.size()));
+        Log.e("Load request code", String.valueOf(pendingRequestCode));
 
     }
 
@@ -236,6 +260,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void save_alarmInfor(){
         /////save button
+
     }
 
     private void set_alarm_text(String output) {
@@ -248,7 +273,6 @@ public class MainActivity extends AppCompatActivity {
         SectionsPageAdapter adapter = new SectionsPageAdapter(getSupportFragmentManager());
         adapter.addFragment(new Tag1Fragment(),"TAB1");
         adapter.addFragment(new Tag2Fragment(),"TAB2");
-      //  adapter.addFragment(new MainActivity(), "Main");
         viewPager.setAdapter(adapter);
     }
 
