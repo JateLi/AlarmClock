@@ -17,6 +17,8 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -52,11 +54,9 @@ public class MainActivity extends AppCompatActivity {
     public static  final  String Shared_Prefs = "sharedPrefs";
     public static  final  String RequestCode =  "pendingRequestCode";
 
-
-    protected void onResume(){
-        super.onResume();
-     //   this.onCreate(null);
-    }
+    private RadioButton defaultRadioButton, minutesRadioButton, hoursRadioButton;
+    private boolean repeatAlarm = false;
+    private int intervalNum = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,16 +66,22 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         //What's this?
         this.context = this;
-        msection = new SectionsPageAdapter(getSupportFragmentManager());
 
-        mViewPager = (ViewPager)findViewById(R.id.container);
-        setupViewPager(mViewPager);
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(mViewPager);
+        //Find id of all radio buttons
+        defaultRadioButton = (RadioButton)findViewById(R.id.radioButtonDefault);
+        minutesRadioButton = (RadioButton) findViewById(R.id.radioButtonMinute);
+        hoursRadioButton = (RadioButton)findViewById(R.id.radioButtonHour);
+
+
+       //switch page with tag1 and tag2 fragment
+//        msection = new SectionsPageAdapter(getSupportFragmentManager());
+//
+//        mViewPager = (ViewPager)findViewById(R.id.container);
+//        setupViewPager(mViewPager);
+//        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+//        tabLayout.setupWithViewPager(mViewPager);
 
         setupLaunchButton();
-
-      //  alarm_array = new ArrayList<Alarm_Infor>();
 
         // initialize
         alarm_timepicker = (TimePicker) findViewById(R.id.timePicker);
@@ -86,9 +92,6 @@ public class MainActivity extends AppCompatActivity {
 
     //Create an intent to Alarm Receiver class
         Button alarm_off = (Button)findViewById(R.id.alarm_off);
-
-
-
         //Create an onClick listener to stop
         alarm_off.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,14 +113,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupAlarmOnButton(){
-        //initialise start & stop button
-        Button alarm_on = (Button)findViewById(R.id.alarm_on);
+        //initialise start button
+        final Button alarm_on = (Button)findViewById(R.id.alarm_on);
         //Create an instance of calender
         final Calendar calendar = Calendar.getInstance();
+        //initialise interval num input
+        final EditText editText = (EditText)findViewById(R.id.input_interval_time);
+
+
+
+//        //
+//            Log.e("9999",getInterval);
+//       // }
+//        if (!getInterval.equals("") && !getInterval.equals("0")){
+//Log.e("dddd", "dddd");
+//        }
         //Create an onClick listener to start
         alarm_on.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 calendar.set(Calendar.HOUR_OF_DAY, alarm_timepicker.getHour());
                 calendar.set(Calendar.MINUTE, alarm_timepicker.getMinute());
 
@@ -136,15 +151,14 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 set_alarm_text("alarm....on!" + hour_Sting + ":" + minute_String);
-
                 Log.e("Alarm_Array Size is ", String.valueOf(alarm_array.size()));
 
                 // 20 Alarm slots limitation
                 if(alarm_array.size() < 21) {
+
                     //tell clock "alarm_on" pressed
                     Intent my_intent = new Intent(MainActivity.this, Alarm_Receiver.class);
                     my_intent.putExtra("extra", "on");
-
                     //request code could be a unique number
                     pending_intent = PendingIntent.getBroadcast(MainActivity.this,
                             pendingRequestCode, my_intent, 0);
@@ -152,43 +166,55 @@ public class MainActivity extends AppCompatActivity {
 
                     // Set the alarm manager
                     a = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-                    a.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
-                            pending_intent);
+
+                    //2 type of alarm can be chosen
+                    String getInterval = editText.getText().toString().trim();
+                    //check interval should not be empty and 0
+                    if(!getInterval.equals("") && !getInterval.equals("0")){
+                      int intervalNum = getTimeInterval(getInterval);
+                      Log.e("Intervel time", String.valueOf(intervalNum));
+
+                        a.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                                1000 * intervalNum, pending_intent);
+                        Log.e("RepeatAlarm", "True");
+                   }else{
+                        a.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pending_intent);
+                    }
 
                     Alarm_Infor af = new Alarm_Infor(pending_intent, pendingRequestCode, calendar);
                     alarm_array.add(af);
                     saveData(af);
+
+                    Toast.makeText(MainActivity.this, String.valueOf(alarm_array.size()),
+                            Toast.LENGTH_SHORT).show();
+
                     pendingRequestCode += 1;
 
 
                 }
-
             }
         });
-
     }
 
 
+
     public void saveData(Alarm_Infor a){
-        SharedPreferences sharedPreferences =  getSharedPreferences(Shared_Prefs,
-                MODE_PRIVATE);
+        SharedPreferences sharedPreferences =  getSharedPreferences(Shared_Prefs, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         editor.putInt(RequestCode, pendingRequestCode);
         //mark the fields you do want to be included in json, Circular references do not expose.
-        Gson gson = new GsonBuilder()
-                .excludeFieldsWithoutExposeAnnotation().create();
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
         String json = gson.toJson(alarm_array);
-       editor.putString("task_list", json);
+        editor.putString("task_list", json);
         editor.apply();
 
 
     }
 
     public void loadData(){
-        SharedPreferences sharedPreferences =  getSharedPreferences(Shared_Prefs,
-                MODE_PRIVATE);
+        SharedPreferences sharedPreferences =  getSharedPreferences(Shared_Prefs, MODE_PRIVATE);
         pendingRequestCode = sharedPreferences.getInt(RequestCode, 0);
         Gson gson = new Gson();
         String json = sharedPreferences.getString("task_list", null);
@@ -223,52 +249,29 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-    }
-
-    private void setupAlarmOffButton(){
-
     }
 
     //get time interval to trigger alarm manager
-//    private int getTimeInterval(String getInterval) {
-//        int interval = Integer.parseInt(getInterval);//convert string interval into integer
-//
-//        //Return interval on basis of radio button selection
-//        if (secondsRadioButton.isChecked())
-//            return interval;
-//        if (minutesRadioButton.isChecked())
-//            return interval * 60;//convert minute into seconds
-//        if (hoursRadioButton.isChecked()) return interval * 60 * 60;//convert hours into seconds
-//
-//        //else return 0
-//        return 0;
-//    }
+    private int getTimeInterval(String getInterval) {
+        int interval = Integer.parseInt(getInterval);//convert string interval into integer
 
-    //Trigger alarm manager with entered time interval
-//    public void triggerAlarmManager(int alarmTriggerTime) {
-//        // get a Calendar object with current time
-//        Calendar cal = Calendar.getInstance();
-//        // add alarmTriggerTime seconds to the calendar object
-//        cal.add(Calendar.SECOND, alarmTriggerTime);
-//
-//        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);//get instance of alarm manager
-//        manager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);//set alarm manager with entered timer by converting into milliseconds
-//
-//        Toast.makeText(this, "Alarm Set for " + alarmTriggerTime + " seconds.", Toast.LENGTH_SHORT).show();
-//    }
+        //Return interval on basis of radio button selection
+        if (defaultRadioButton.isChecked())
+            return 0;
+        if (minutesRadioButton.isChecked())
+            return interval * 60;//convert minute into seconds
+        if (hoursRadioButton.isChecked()) return interval * 60 * 60;//convert hours into seconds
 
-    private void save_alarmInfor(){
-        /////save button
-
+        //else return 0
+        return 0;
     }
 
     private void set_alarm_text(String output) {
 
         update_text.setText(output);
-
     }
 
+    //switch page with tab
     private void setupViewPager(ViewPager viewPager){
         SectionsPageAdapter adapter = new SectionsPageAdapter(getSupportFragmentManager());
         adapter.addFragment(new Tag1Fragment(),"TAB1");
@@ -291,12 +294,10 @@ public class MainActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }

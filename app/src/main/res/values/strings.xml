@@ -11,4 +11,11 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_main2">Main2Activity</string>
+    <string name="launchactivity">launchActivity</string>
+    <string name="radiobutton">RadioButton</string>
+    <string name="textview">TextView</string>
+    <string name="interval_time">interval time</string>
+    <string name="hour">Hour</string>
+    <string name="minute">Minute</string>
+    <string name="none">None</string>
 </resources>

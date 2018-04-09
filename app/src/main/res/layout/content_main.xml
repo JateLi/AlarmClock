@@ -14,17 +14,20 @@
         android:id="@+id/timePicker"
         android:layout_width="0dp"
         android:layout_height="346dp"
-        android:layout_marginTop="92dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="68dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.576" />
 
     <Button
         android:id="@+id/alarm_on"
         android:layout_width="wrap_content"
-        android:layout_height="62dp"
-        android:layout_marginBottom="52dp"
+        android:layout_height="63dp"
+        android:layout_marginStart="4dp"
         android:text="@string/alarm_on"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -33,7 +36,7 @@
         android:id="@+id/alarm_off"
         android:layout_width="wrap_content"
         android:layout_height="62dp"
-        android:layout_marginBottom="52dp"
+        android:layout_marginEnd="4dp"
         android:text="@string/alarm_off"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -49,7 +52,7 @@
         android:text="@string/show_alarm_state"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/alarm_off"
-        app:layout_constraintHorizontal_bias="0.545"
+        app:layout_constraintHorizontal_bias="0.636"
         app:layout_constraintStart_toEndOf="@+id/alarm_on"
         app:layout_constraintTop_toBottomOf="@+id/timePicker"
         app:layout_constraintVertical_bias="0.0" />
@@ -62,28 +65,72 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="launchActivity"
+        android:text="@string/launchactivity"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.96"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.12" />
 
-    <RadioButton
-        android:id="@+id/radioButton"
+    <RadioGroup
         android:layout_width="wrap_content"
-        android:layout_height="33dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/fab_margin"
+        android:paddingRight="@dimen/fab_margin"
+        android:id="@+id/RGroup">
+
+        <RadioButton
+            android:id="@+id/radioButtonDefault"
+            android:layout_width="92dp"
+            android:layout_height="33dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/none" />
+
+        <RadioButton
+            android:id="@+id/radioButtonHour"
+            android:layout_width="92dp"
+            android:layout_height="33dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/hour" />
+
+        <RadioButton
+            android:id="@+id/radioButtonMinute"
+            android:layout_width="92dp"
+            android:layout_height="33dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/minute" />
+
+
+    </RadioGroup>
+
+
+    <EditText
+        android:id="@+id/input_interval_time"
+        android:layout_width="185dp"
+        android:layout_height="53dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="RadioButton"
+        android:hint="@string/interval_time"
+        android:inputType="number"
+        android:textColor="@android:color/holo_blue_dark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.03"
+        app:layout_constraintHorizontal_bias="0.043"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.122" />
 
 </android.support.constraint.ConstraintLayout>
