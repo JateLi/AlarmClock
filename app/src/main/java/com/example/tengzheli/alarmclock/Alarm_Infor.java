@@ -29,7 +29,20 @@ public class Alarm_Infor {
         this.calendar = calendar;
     }
 
+
     public Calendar getCalendar() {
         return calendar;
+    }
+
+    public void setPending_intent(PendingIntent pending_intent) {
+        this.pending_intent = pending_intent;
+    }
+
+    public void setRequest_code(int request_code) {
+        this.request_code = request_code;
+    }
+
+    public void setCalendar(Calendar calendar) {
+        this.calendar = calendar;
     }
 }

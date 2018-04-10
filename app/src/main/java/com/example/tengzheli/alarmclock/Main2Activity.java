@@ -2,19 +2,33 @@ package com.example.tengzheli.alarmclock;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class Main2Activity extends AppCompatActivity {
+    private ArrayList<TestInfo> tString = new ArrayList<TestInfo>();
+    public static  final  String Shared_Prefs = "sharedPrefs";
+
+    ArrayList<TestInfo> testInfoList;
+    Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +36,17 @@ public class Main2Activity extends AppCompatActivity {
         setContentView(R.layout.activity_main2);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        this.context = this;
+
+//        loadData();
+        FloatingActionButton  fab = (FloatingActionButton)findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(Main2Activity.this, "Add a new alarm",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
 
         ListView list = (ListView)findViewById(R.id.listiew);
 
@@ -32,24 +57,22 @@ public class Main2Activity extends AppCompatActivity {
         TestInfo  e = new TestInfo("e", "10:15", "5");
         TestInfo  f = new TestInfo("f", "10:16", "6");
 
-
-
-        ArrayList<TestInfo> testInfoList = new ArrayList<>();
-        testInfoList.add(a);
-        testInfoList.add(b);
-        testInfoList.add(c);
-        testInfoList.add(d);
-        testInfoList.add(e);
-        testInfoList.add(f);
-        testInfoList.add(a);
-        testInfoList.add(b);
-        testInfoList.add(c);
-        testInfoList.add(d);
-        testInfoList.add(e);
-        testInfoList.add(f);
+        loadData();
+//        testInfoList.add(a);
+//        testInfoList.add(b);
+//        testInfoList.add(c);
+//        testInfoList.add(d);
+//        testInfoList.add(e);
+//        testInfoList.add(f);
+//        testInfoList.add(a);
+//        testInfoList.add(b);
+//        testInfoList.add(c);
+//        testInfoList.add(d);
+//        testInfoList.add(e);
+//        testInfoList.add(f);
 
         TestInfoArrayAdapter adapter = new TestInfoArrayAdapter(this, R.layout.list_item_layout,
-                testInfoList);
+                tString);
         list.setAdapter(adapter);
 
 
@@ -57,6 +80,17 @@ public class Main2Activity extends AppCompatActivity {
         setupEndActivityButton();
 
     }
+
+    public void loadData(){
+        SharedPreferences sharedPreferences =  getSharedPreferences(Shared_Prefs, MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString("task_list", null);
+        Type type = new TypeToken<ArrayList<TestInfo>>(){}.getType();
+        tString = gson.fromJson(json, type);
+
+        Log.e("Load array size", String.valueOf(tString.size()));
+    }
+
 
 private  void setupEndActivityButton(){
     Button launchBack = (Button) findViewById(R.id.launchToFirst);

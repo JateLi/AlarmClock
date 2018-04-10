@@ -30,6 +30,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,8 +40,9 @@ public class MainActivity extends AppCompatActivity {
     TextView update_text;
     Context context;
     PendingIntent pending_intent;
-    private ArrayList<Alarm_Infor> alarm_array = new ArrayList<Alarm_Infor>();
-
+   // private ArrayList<Alarm_Infor> alarm_array ;
+    private  ArrayList<String> aString ;
+    private  ArrayList<TestInfo> tString;
     //AlarmManager[] alarmManagers = new AlarmManager[12];
     AlarmManager a ;
 
@@ -72,6 +74,9 @@ public class MainActivity extends AppCompatActivity {
         minutesRadioButton = (RadioButton) findViewById(R.id.radioButtonMinute);
         hoursRadioButton = (RadioButton)findViewById(R.id.radioButtonHour);
 
+       // alarm_array = new ArrayList<Alarm_Infor>();
+        aString = new ArrayList<String>();
+        tString = new ArrayList<TestInfo>();
 
        //switch page with tag1 and tag2 fragment
 //        msection = new SectionsPageAdapter(getSupportFragmentManager());
@@ -121,13 +126,6 @@ public class MainActivity extends AppCompatActivity {
         final EditText editText = (EditText)findViewById(R.id.input_interval_time);
 
 
-
-//        //
-//            Log.e("9999",getInterval);
-//       // }
-//        if (!getInterval.equals("") && !getInterval.equals("0")){
-//Log.e("dddd", "dddd");
-//        }
         //Create an onClick listener to start
         alarm_on.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -151,10 +149,10 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 set_alarm_text("alarm....on!" + hour_Sting + ":" + minute_String);
-                Log.e("Alarm_Array Size is ", String.valueOf(alarm_array.size()));
+              //  Log.e("Alarm_Array Size is ", String.valueOf(alarm_array.size()));
 
                 // 20 Alarm slots limitation
-                if(alarm_array.size() < 21) {
+                if(aString.size() < 21) {
 
                     //tell clock "alarm_on" pressed
                     Intent my_intent = new Intent(MainActivity.this, Alarm_Receiver.class);
@@ -181,12 +179,17 @@ public class MainActivity extends AppCompatActivity {
                         a.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pending_intent);
                     }
 
-                    Alarm_Infor af = new Alarm_Infor(pending_intent, pendingRequestCode, calendar);
-                    alarm_array.add(af);
-                    saveData(af);
+                    //Alarm_Infor af = new Alarm_Infor(pending_intent, pendingRequestCode, calendar);
+                    TestInfo ti = new TestInfo(String.valueOf(pendingRequestCode), hour_Sting +":"+minute_String, "0");
+                    tString.add(ti);
+                    //alarm_array.add(af);
+                    aString.add(String.valueOf(pendingRequestCode));
+                    saveData();
 
-                    Toast.makeText(MainActivity.this, String.valueOf(alarm_array.size()),
-                            Toast.LENGTH_SHORT).show();
+                  //  Toast.makeText(MainActivity.this, String.valueOf(alarm_array.size()),
+                           // Toast.LENGTH_SHORT).show();
+                   // Log.e("request code", String.valueOf(af.getRequest_code()));
+                    //Log.e("request code", String.valueOf(alarm_array.get(alarm_array.size()-1).getRequest_code()));
 
                     pendingRequestCode += 1;
 
@@ -198,15 +201,20 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    public void saveData(Alarm_Infor a){
+    public void saveData(){
         SharedPreferences sharedPreferences =  getSharedPreferences(Shared_Prefs, MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         editor.putInt(RequestCode, pendingRequestCode);
         //mark the fields you do want to be included in json, Circular references do not expose.
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+       //Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        GsonBuilder gb = new GsonBuilder();
+        Gson gson = new Gson();
+      //  Gson gson = gb.registerTypeAdapter(Alarm_Infor.class,
+                //new ArrayList<Alarm_Infor>()).create();
 
-        String json = gson.toJson(alarm_array);
+        //Log.e("request code", String.valueOf(alarm_array.get(alarm_array.size()-1).getRequest_code()));
+        String json = gson.toJson(tString);
         editor.putString("task_list", json);
         editor.apply();
 
@@ -218,17 +226,27 @@ public class MainActivity extends AppCompatActivity {
         pendingRequestCode = sharedPreferences.getInt(RequestCode, 0);
         Gson gson = new Gson();
         String json = sharedPreferences.getString("task_list", null);
-        Type type = new TypeToken<ArrayList<Alarm_Infor>>(){}.getType();
-        alarm_array = gson.fromJson(json, type);
-
-        if(alarm_array == null){
-            alarm_array = new ArrayList<>();
+//        Type type = new TypeToken<ArrayList<Alarm_Infor>>(){}.getType();
+//        alarm_array = gson.fromJson(json, type);
+        Type type = new TypeToken<ArrayList<TestInfo>>(){}.getType();
+         aString = gson.fromJson(json, type);
+        for(int i = 0; i < tString.size(); i++){
+            Log.e("load request code", String.valueOf(tString.get(i).getName()));
         }
 
-        Log.e("Load array size", String.valueOf(alarm_array.size()));
+//        if(alarm_array == null){
+//            alarm_array = new ArrayList<>();
+//        }
+//
+//        for(int i = 0; i < alarm_array.size(); i++){
+//            Log.e("load alarm request code", String.valueOf(alarm_array.get(i).getRequest_code()));
+//        }
+      //  Log.e("Load array size", String.valueOf(alarm_array.size()));
         Log.e("Load request code", String.valueOf(pendingRequestCode));
 
     }
+
+
 
 
 

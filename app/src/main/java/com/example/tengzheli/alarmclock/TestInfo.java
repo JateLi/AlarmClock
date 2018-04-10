@@ -16,6 +16,7 @@ public class TestInfo {
         this.number = number;
     }
 
+
     public void setName(String name) {
         this.name = name;
     }
